@@ -15,25 +15,43 @@ to the Factory Pattern).
 import tempfile
 import webbrowser
 from abc import ABCMeta, abstractmethod
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+# Personal Imports
+from singleton import Logger
+
+# Instance Logger
+logging = Logger("builder.log")
 
 # Classes Definition
 class AbstractDirector(object, metaclass=ABCMeta):
+    ''' The director only knows how to use the builder and return the product'''
     def __init__(self):
         self._builder = None
 
     def set_builder(self, builder):
-        self._builder = builder
+        self._builder = builder # Super generic, Any AbstractFormBuilder could be used
 
     @abstractmethod
-    def construct(self, field_list):
+    def construct(self, config, field_list):
+        # In the real classes we will define what we need here
         pass
     
     def get_constructed_object(self):
         return self._builder.constructed_object
 
 class AbstractFormBuilder(object, metaclass=ABCMeta):
+    ''' 
+        The Builder is attached to the director and knows the specific
+        The idea is be able to create different Builders for different situations
+        Always knowing that the director.construct() will work
+    '''
     def __init__(self):
         self.constructed_object = None
+    
+    @abstractmethod
+    def configure_form(self, config):
+        pass
     
     @abstractmethod
     def add_text_field(self, field_dict):
@@ -54,14 +72,41 @@ class AbstractFormBuilder(object, metaclass=ABCMeta):
 # Builders:
 class HtmlForm(object):
     def __init__(self):
+        self.form_attrs = ""
         self.field_list = []
 
     def __repr__(self):
-        return "<form>{}</form>".format("".join(self.field_list))
+        return "<form {0}>{1}</form>".format(
+            self.form_attrs,
+            "".join(self.field_list)
+        )
+
+class FormDirector(AbstractDirector):
+    def __init__(self):
+        AbstractDirector.__init__(self)
+
+    def construct(self, config, field_list):
+        # Set form
+        self._builder.configure_form(config)
+        # Set fields
+        for field in field_list:
+            if field["field_type"] == "text_field":
+                self._builder.add_text_field(field)
+            elif field["field_type"] == "checkbox":
+                self._builder.add_checkbox(field)
+            elif field["field_type"] == "radio_group":
+                self._builder.add_radiogroup(field)
+            elif field["field_type"] == "button":
+                self._builder.add_button(field)    
 
 class HtmlFormBuilder(AbstractFormBuilder):
     def __init__(self):
-        self.constructed_object = HtmlForm()
+        self.constructed_object = HtmlForm() # At this point is empty
+    
+    def configure_form(self, config):
+        self.form_attrs = " ".join(
+            [f'{key}="{value}"' for key,value in config.items()]
+        )
     
     def add_text_field(self, field_dict):
         self.constructed_object.field_list.append(
@@ -74,7 +119,7 @@ class HtmlFormBuilder(AbstractFormBuilder):
     
     def add_checkbox(self, checkbox_dict):
         self.constructed_object.field_list.append(
-            '<label><input type="checkbox" id="{0}" value="{1}"> {2}<br>'.
+            '<label><input type="checkbox" id="{0}" value="{1}"> {2}<br></label>'.
             format(
                 checkbox_dict['field_id'],
                 checkbox_dict['value'],
@@ -108,28 +153,18 @@ class HtmlFormBuilder(AbstractFormBuilder):
             format(
                 button_dict['text']
             )
-        )
-            
+        )   
 
-class FormDirector(AbstractDirector):
-    def __init__(self):
-        AbstractDirector.__init__(self)
-
-    def construct(self, field_list):
-        for field in field_list:
-            if field["field_type"] == "text_field":
-                self._builder.add_text_field(field)
-            elif field["field_type"] == "checkbox":
-                self._builder.add_checkbox(field)
-            elif field["field_type"] == "radio_group":
-                self._builder.add_radiogroup(field)
-            elif field["field_type"] == "button":
-                self._builder.add_button(field)       
- 
-# Execution
-if __name__ == "__main__":
+def generate_form():
+    # Instance Director and Builder
     director = FormDirector()
+    html_form_builder = HtmlFormBuilder()
+    director.set_builder(html_form_builder)
     # Define Fields
+    config = {
+        'action':'',
+        'method':'post',
+    }
     field_list = [
         {
             "field_type": "text_field",
@@ -154,18 +189,59 @@ if __name__ == "__main__":
         },
         {
             "field_type": "button",
-            "text": "DONE"
+            "text": "Submit"
         }
     ]
-    html_form_builder = HtmlFormBuilder()
-    director.set_builder(html_form_builder)
-    director.construct(field_list)
-    with tempfile.NamedTemporaryFile('w', delete=False, suffix='.html') as f:
-        url = 'file://' + f.name
-        f.write(
-            "<html><body>{0!r}</body></html>".
-                format(
-                    director.get_constructed_object()
-                )
+    director.construct(config, field_list)
+    return "<html><body>{0!r}</body></html>".format(
+        director.get_constructed_object()
+    )
+
+
+# Define Server
+class CustomServer(BaseHTTPRequestHandler):      
+    def _set_response(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
+    def do_GET(self): # In this case we treat any path the same
+        logging.info(
+            "GET request,\nPath: {0}\nHeaders:\n{1}\n".format(
+                self.path,
+                self.headers
+            )
         )
-        webbrowser.open(url)
+        self._set_response()
+        # response:
+        self.wfile.write(generate_form().encode())
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
+        post_data = self.rfile.read(content_length) # <--- Gets the data itself
+        logging.info(
+            "POST request,\nPath: {0}\nHeaders:\n{1}\n\nBody:\n{2}\n".format(
+                self.path,
+                self.headers,
+                post_data.decode('utf-8')
+            )
+        )
+        # Prepare Response
+        self._set_response()
+        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+
+def run_server(server_class=HTTPServer, handler_class=CustomServer, port=8080):
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    logging.info('Starting httpd...\n')
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
+    logging.info('Stopping httpd...\n')
+
+# Execution
+if __name__ == "__main__":
+    # Run Server
+    run_server()
