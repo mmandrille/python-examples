@@ -1,0 +1,112 @@
+version: '3.7'
+x-services-vars: &services-vars
+  KAFKA_URL: broker:29092
+  KAFKA_TOPIC: testing
+
+x-locale-vars: &locale-vars
+  TZ: US/Central
+  LANG: en_US.UTF-8
+  LANGUAGE: en_US
+
+# Internal Connections between services
+networks:
+  kafka_network:
+    driver: bridge
+    ipam:
+      config:
+       - subnet: 10.0.4.0/24
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    hostname: zookeeper
+    container_name: zookeeper
+    restart: on-failure
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - kafka_network
+    ports:
+      - 22181:2181
+
+  broker:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: broker
+    hostname: broker
+    restart: on-failure
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 48
+      KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 43400000
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=WARN"
+      KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
+      KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    networks:
+      - kafka_network
+    depends_on:
+      - zookeeper
+
+  # Processing Certs
+  producer: # Script Receive CertStream Socket and send to Kafka 
+    build: producer/.
+    image: producer-image
+    container_name: producer
+    command: python producer.py
+    user: 1000:1000
+    restart: on-failure
+    volumes:
+      - ./producer/logs:/logs/
+    environment:
+      PYTHONUNBUFFERED: 1
+      MAX_WORKERS: 2
+      LOGGING_LEVEL: 10 # INFO
+      MSG_CREATION_DELAY_MS: 10
+      SCREENING_RATE: 500
+      # Globals
+      <<: *locale-vars
+      <<: *services-vars
+    networks:
+      - kafka_network
+    links:
+      - broker
+    depends_on:
+      - broker
+
+  # consumer: # Read Kafka messages, Process against ZClassifier and Save on Django
+  #   build: consumer/.
+  #   image: consumer-image
+  #   command: python consumer.py
+  #   user: 1000:1000
+  #   restart: on-failure
+  #   deploy:
+  #     replicas: 2
+  #     restart_policy:
+  #       condition: none
+  #   volumes:
+  #     - ./consumer/logs:/logs/
+  #   environment:
+  #     PYTHONUNBUFFERED: 1
+  #     MAX_TASKS: 32
+  #     MAX_QUEUE: 2500
+  #     SLEEP_TIME: 5
+  #     LOGGING_LEVEL: 10 # INFO
+  #     SCREENING_RATE: 10000
+  #     # Globals
+  #     <<: *locale-vars
+  #     <<: *services-vars
+  #   networks:
+  #     - kafka_network
+  #   links:
+  #     - broker
+  #   depends_on:
+  #     - broker
