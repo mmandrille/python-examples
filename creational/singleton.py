@@ -16,34 +16,74 @@ I strongly recommend the 'Borg' pattern as a more elegant alternative (see borg.
 usually meets all the needs of a Singleton with a more classical OOP approach.
 
 """
+# Import definition
+from datetime import datetime
 
-class SingletonObject(object):
-    class __SingletonObject():
-        def __init__(self):
-            self.val = None
-        
+# Classes Definition
+class NamedSingletonObject(object):
+    instances = {} # We will keep created instances here
+    class __NamedSingletonObject():
+        def __init__(self, name:str):
+            self.name = name
+
         def __str__(self):
-            return "{0!r} {1}".format(self, self.val)
-    # the rest of the class definition will follow here, as per the previous logging script
-    instance = None
+            return f"{self.name}({id(self)})"
 
-    def __new__(cls):
-        if not SingletonObject.instance:
-            SingletonObject.instance = SingletonObject.__SingletonObject()
-        return SingletonObject.instance
+    def __new__(cls, name):
+        # Check if already exist
+        print(f"\nWe are creating: {name} Singletone")
+        if name not in cls.instances.keys():
+            print(f"There is not a '{name}' singleton. Creating...")
+            # Create if not
+            cls.instances[name] = cls.__NamedSingletonObject(name)
+        # Return correct singleton
+        return cls.instances.get(name)
 
-    def __getattr__(self, name):
-        return getattr(self.instance, name)
+class Logger(NamedSingletonObject):
+    """
+    A file-based message logger with the following properties
+    Attributes:
+    file_name: a string representing the full path of the log file to which 
+    this logger will write its messages
+    """
+    def __new__(self, filename):
+        """Return a Logger object whose file_name is *file_name*"""
+        super().__new__(self, filename)
+        logger = self.instances.get(filename)
+        logger.file_name = filename
+        return logger
 
-    def __setattr__(self, name):
-        return setattr(self.instance, name)
+    def _write_log(self, level, msg):
+        """Writes a message to the file_name for a specific Logger instance"""
+        with open(self.file_name, "a") as log_file:
+            log_file.write(f"[{level}]-{datetime.now()} {msg}\n")
+    
+    # We define a method for every level, we could need specific treatments
+    def critical(self, msg):
+        self._write_log("CRITICAL",msg)
+    def error(self, msg):
+        self._write_log("ERROR", msg)
+    def warn(self, msg):
+        self._write_log("WARN", msg)
+    def info(self, msg):
+        self._write_log("INFO", msg)
+    def debug(self, msg):
+        self._write_log("DEBUG", msg)           
 
+# Testing
 if __name__ == '__main__':
-    obj1 = SingletonObject()
-    obj1.val = "Object value 1"
-    print("print obj1: ", obj1)
-    print("-----")
-    obj2 = SingletonObject()
-    obj2.val = "Object value 2"
-    print("print obj1: ", obj1)
-    print("print obj2: ", obj2)
+    # We create 2 loggers
+    log1 = Logger("primary.log")
+    print(f"obj1: {log1.file_name} ({id(log1)})")
+    
+    log2 = Logger("secundary.log")
+    print(f"obj1: {log1.file_name} ({id(log1)})")
+    print(f"obj2: {log2.file_name} ({id(log2)})")
+
+    print(f"\nWe check if are't the same object: {log1 is not log2}")
+    assert True == (log1 is not log2)
+    # We call Logger with same name:
+    log3 = Logger("primary.log")
+    print(f"We check if are the same object 1 & 3: {log1 is log3}")
+    assert True == (log1 is log3)
+    
