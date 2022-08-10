@@ -9,118 +9,87 @@ whenever the need arises. This pattern is particularly useful when:
 + The cost of initialization is high.
 + Many objects of the same type are needed but some (or all) properties that are
     costly (time/space/bandwidth) to set remain the same across all objects.
-
-The following example considers the use case of a prototype for student report
-cards. Let us assume that all report cards for any given year have some universal
-data that might take a long time to query and post-process. Let us also assume
-that each report card belongs to a student and contains some data that is unique
-to the student and can be populated after the universal data has been populated.
-This is a good use case for the pattern since we only need one instance of the
-ReportCardPrototype per year (the breeder for that year). To create report
-card(s) for a particular student, we only need to make one clone of each breeder
-associated to the year that the student was enrolled.
+    
+This example will be based on Practial Python Design Patterns by Wessel Badenhorst
 
 """
+# Requiered imports
+import json
+from copy import deepcopy
+from abc import ABCMeta, abstractmethod
 
-import copy
+# Classes
+class UnitsDict(dict):
+    def add_unit(self, unit):
+        if unit.unit_type not in self:
+            self[unit.unit_type] = {}        
+        self[unit.unit_type][unit.lvl] = unit
 
-class ReportCardPrototype:
-    """The prototype class for report cards."""
-
-    def __init__(self, year):
-        """Only one instance per year should be constructed."""
-
-        self.year = year
-        self.report = None
-        self.student_id = None
-        self._build_general_report()
-
-    def set_student(self, s_id):
-        """Updates the report data with student specific data. Only clones of
-        the breeders should call this.
-        """
-
-        self.student_id = s_id
-        self._populate_student_data()
-
-    def _build_general_report(self):
-        """We assume that this method is very costly. The point of the pattern 
-        to call it as rarely as possible.
-        """
+class Prototype(metaclass=ABCMeta):
+    @abstractmethod
+    def clone(self):
         pass
 
-    def _populate_student_data(self):
-        """This populates the student data and should only be called by
-        set_student. All costly computations and queries per clone should be
-        contained here.
-        """
-        pass
+class Concrete(Prototype):
+    def clone(self):
+        return deepcopy(self)
+
+class Unit(Prototype):
+    def __init__(self, name:str, lvl:int, stats:dict):
+        self.unit_type = name
+        self.lvl = lvl
+        for key, value in stats.items():
+            setattr(self, key, value) # We generate a atribute with every item in the data dict
+    
+    def __str__(self):
+        return f"{self.unit_type} ({self.lvl})"
 
     def clone(self):
-        """Any clone of the breeders should be made by calling this method."""
+        return deepcopy(self)
 
-        # The copy created is a brand new object with its own id and properties.
-        return copy.deepcopy(self)
+class Knight(Unit):
+    pass # Define special methods
 
-    def __repr__(self):
+class Archer(Unit):
+    pass # Define special methods
 
-        return "<ReportCard: student_id: {}, year: {}>".format(self.student_id,
-            self.year)
+class Priest(Unit):
+    pass # Define special methods
 
-class ReportFactory():
-    """This is not strictly a part of the prototype pattern but complements it
-    very well. All instances of the prototype (breeders) are contained in this
-    class. They can then be interfaced with using the `make()` method. It may
-    be implemented differently (as a singleton or with a caching model).
-    """
-
-    _report_breeders = {}
+class Barracks(object):
+    def __init__(self, player):
+        owner = player
+        data = json.loads(open("resources/units.json").read()) # Load Units Config File
+        self.units = UnitsDict()# Here we will create all units
+        # Available units, (This could change depending on the player)
+        self.available_types = {
+            "Knight": Knight,
+            "Archer": Archer,
+            "Priest": Priest # Still not implemented on resources/units.json
+        }
+        # We loop though units creating them:
+        for type, UnitClass in self.available_types.items():
+            # We fetch all defined items from that class
+            TypeLevels = data.get(type, {}) # Avoid NoneType Error in the next for
+            # We create a class for every Stat Block
+            for lvl, stats in TypeLevels.items(): # Loop every block stat
+                self.units.add_unit(
+                    self.available_types[type] # We call the constructor
+                    (
+                        type, #Name
+                        int(lvl), # Lvl is String in Json
+                        stats # Dict with stats
+                    ) 
+                )
     
-    def __init__(self):
-        """Further implementation may be added here as per your use case."""
-        pass
-
-    def make(self, s_id, year):
-        """Similar to any factory, this method adds a layer of abstraction to
-        the object creation. In this case, it ensures that the right breeder is
-        cloned.
-        """
-
-        if year not in ReportFactory._report_breeders:
-            ReportFactory._report_breeders[year] = ReportCardPrototype(year)
-
-        clone = ReportFactory._report_breeders[year].clone()
-        clone.set_student(s_id)
-        return clone
-
-class Student():
-    """This class is not pertinent to the prototype pattern but it adds some
-    elegenace to this example. Simply by instantiating a Student, all its
-    report cards for all years are automatically generated.
-    """
-
-    def __init__(self, s_id, years, report_factory):
-
-        self.id = s_id
-        self.years = years
-        self.report_cards = []
-        self.report_factory = report_factory
-        self._get_report_cards()
-
-    def _get_report_cards(self):
-
-        for year in self.years:
-            report_card = self.report_factory.make(self.id, year)
-            self.report_cards.append(report_card)
-
+    def build_unit(self, unit_type, level):
+        return self.units[unit_type][level].clone()
 
 if __name__ == "__main__":
-
-    # The factory acts as an interface to prototype breeders.
-    factory = ReportFactory()
-    # Constructing a student automatically clones all breeders for his/her years.
-    student_1234 = Student(s_id=1234, years=[2015, 2016], report_factory=factory)
-    student_4321 = Student(s_id=4321, years=[2014, 2015], report_factory=factory)
-
-    print(student_1234.report_cards)
-    print(student_4321.report_cards)  
+    barracks = Barracks("nickname") # On the instancing we already create the prototypes
+    knight1 = barracks.build_unit("Knight", 1)
+    archer1 = barracks.build_unit("Archer", 2)
+    print(f"[knight1] {knight1}")
+    print(f"[archer1] {archer1}")
+    assert knight1.Life == 400
+    assert archer1.AttackRange == 12

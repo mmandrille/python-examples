@@ -1,0 +1,35 @@
+{
+    "Knight": {
+        "1" : {
+            "Life": 400,
+            "Speed": 5,
+            "AttackPower": 3,
+            "AttackRange": 1,
+            "Weapon": "Short Sword"
+        },
+        "2" : {
+            "Life": 700,
+            "Speed": 5,
+            "AttackPower": 5,
+            "AttackRange": 1.5,
+            "Weapon": "Long Sword"
+        }
+    },
+    "Archer": 
+    {
+        "1" : {
+            "Life": 200,
+            "Speed": 7,
+            "AttackPower": 3,
+            "AttackRange": 10,
+            "Weapon": "Short Bow"
+        },
+        "2" : {
+            "Life": 400,
+            "Speed": 7,
+            "AttackPower": 4,
+            "AttackRange": 12,
+            "Weapon": "Long Sword"
+        }
+    }
+}
