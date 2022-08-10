@@ -1,39 +1,38 @@
-# Python Design Patterns
+# Python Examples
 
-The purpose of this project is to document my coding practices for the book:  Practical Python Design Patterns by Wessel Badenhorsof. All design patterns are divided into three categories (directories): **Creational**, **Structural** & **Behavioural**. Each pattern is contained within its own module (with its own `.py` script). Each module contains a sample implementation along with some demonstrative tests and extensive documentation.
+The purpose of this project is to document my coding practices and examples, looking to be used as snippet library.
 
-Each module can be run as a standalone python script or imported into other scripts, some of them will need the requierements, I would recomend to install virtual enviroment and install there with:
+I would recomend to install virtual enviroment and install there with:
 - python3 -m venv venv
 - source venv/bin/activate
 - pip install -r requeriments.txt   //Instala dependencias
 
+Some more complex examples will requiere extra steps to run them, in that cases the Readme inside the folder will examplin how to do it.
+
 Please feel free to suggest modifications/updates.
 
 ## Index
++ [***Pattern Designs***](./design-patterns)
+    + [**Creational Patterns**](./design-patterns/creational)
+        + [Singleton](./design-patterns/creational/singleton.py) - Done!
+        + [Prototype](./design-patterns/creational/prototype.py) - Done!
+        + [Factory](./design-patterns/creational/factory.py) - Done!
+        + [Builder](./design-patterns/creational/builder.py) - Done!
+        + [Pool](./design-patterns/creational/pool.py)
 
-+ [**Creational Patterns**](./creational)
-    + [Singleton](./creational/singleton.py) - Done!
-    + [Prototype](./creational/prototype.py) - Done!
-    + [Factory](./creational/factory.py) - Done!
-    + [Builder](./creational/builder.py) - Done!
-    + [Pool](./creational/pool.py)
+    + [**Structural Patterns**](./design-patterns/structural)
+        + [Pythonesque Decorator](./design-patterns/structural/pythonesque_decorator.py)
+        + [Facade](./design-patterns/structural/facade.py)
+        + [Proxy](./design-patterns/structural/proxy.py)
+        + [Flyweight](./design-patterns/structural/flyweight.py)
+        + [Adapter](./design-patterns/structural/adapter.py)
+        + [Composite](./design-patterns/structural/composite.py)
 
-+ [**Structural Patterns**](./structural)
-    + [Pythonesque Decorator](./structural/pythonesque_decorator.py)
-    + [Facade](./structural/facade.py)
-    + [Proxy](./structural/proxy.py)
-    + [Flyweight](./structural/flyweight.py)
-    + [Adapter](./structural/adapter.py)
-    + [Composite](./structural/composite.py)
-
-+ [**Behavioural Patterns**](./behavioural)
-    + [Chain of Responsibility](./behavioural/chain_of_responsibility.py)
-    + [Mediator](./behavioural/mediator.py)
-    + [Observer](./behavioural/observer.py)
-    + [Command](./behavioural/command.py)
-    + [Memento](./behavioural/memento.py)
-    + [Registry](./behavioural/registry.py)
-    + [Strategy](./behavioural/strategy.py)
-
-I clone original repository from: **prateeksan** but i intended to replace all code from it to practices every pattern
-Thanks man for your public repo, it help me to start with this...
+    + [**Behavioural Patterns**](./design-patterns/behavioural)
+        + [Chain of Responsibility](./design-patterns/behavioural/chain_of_responsibility.py)
+        + [Mediator](./design-patterns/behavioural/mediator.py)
+        + [Observer](./design-patterns/behavioural/observer.py)
+        + [Command](./design-patterns/behavioural/command.py)
+        + [Memento](./design-patterns/behavioural/memento.py)
+        + [Registry](./design-patterns/behavioural/registry.py)
+        + [Strategy](./design-patterns/behavioural/strategy.py)
