@@ -97,14 +97,16 @@ class FormDirector(AbstractDirector):
             elif field["field_type"] == "radio_group":
                 self._builder.add_radiogroup(field)
             elif field["field_type"] == "button":
-                self._builder.add_button(field)    
+                self._builder.add_button(field)
 
 class HtmlFormBuilder(AbstractFormBuilder):
     def __init__(self):
         self.constructed_object = HtmlForm() # At this point is empty
     
+    # on the next functions we need to affect self.constructed_object
+    # it will be used with the object.__repr__ function
     def configure_form(self, config):
-        self.form_attrs = " ".join(
+        self.constructed_object.form_attrs = " ".join(
             [f'{key}="{value}"' for key,value in config.items()]
         )
     
@@ -149,7 +151,7 @@ class HtmlFormBuilder(AbstractFormBuilder):
 
     def add_button(self, button_dict):
         self.constructed_object.field_list.append(
-            '<button type="button">{}</button>'.
+            '<button type="submit">{}</button>'.
             format(
                 button_dict['text']
             )
@@ -173,13 +175,19 @@ def generate_form():
         },
         {
             "field_type": "checkbox",
-            "field_id": "check_it",
-            "value": "1",
-            "label": "CheckBox",
+            "field_id": "cb1",
+            "value": "Check_1",
+            "label": "CheckBox 1",
+        },
+        {
+            "field_type": "checkbox",
+            "field_id": "cb2",
+            "value": "Check_2",
+            "label": "CheckBox 2",
         },
         {
             "field_type": "radio_group",
-            "field_name": "pickone",
+            "field_name": "Pickone",
             "label": "Pick One",
             "values": [
                 {"value": 1, "label": "Option 1"},
@@ -217,18 +225,15 @@ class CustomServer(BaseHTTPRequestHandler):
         self.wfile.write(generate_form().encode())
 
     def do_POST(self):
-        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
-        post_data = self.rfile.read(content_length) # <--- Gets the data itself
-        logging.info(
-            "POST request,\nPath: {0}\nHeaders:\n{1}\n\nBody:\n{2}\n".format(
-                self.path,
-                self.headers,
-                post_data.decode('utf-8')
-            )
-        )
+        post_data = self.rfile.read1().decode('utf-8')
         # Prepare Response
         self._set_response()
-        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+        self.wfile.write(
+            "POST request for {0} with Values: {1}".format(
+                self.path,
+                post_data
+            ).encode('utf-8')
+        )
 
 def run_server(server_class=HTTPServer, handler_class=CustomServer, port=8080):
     server_address = ('', port)
@@ -245,3 +250,4 @@ def run_server(server_class=HTTPServer, handler_class=CustomServer, port=8080):
 if __name__ == "__main__":
     # Run Server
     run_server()
+    logging.delete() # Clean up
