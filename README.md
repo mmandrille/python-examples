@@ -14,7 +14,7 @@ Please feel free to suggest modifications/updates.
 + [**Creational Patterns**](./creational)
     + [Singleton](./creational/singleton.py) - Done!
     + [Prototype](./creational/prototype.py) - Done!
-    + [Factory](./creational/factory.py)
+    + [Factory](./creational/factory.py) - Done!
     + [Builder](./creational/builder.py)
     + [Pool](./creational/pool.py)
 
