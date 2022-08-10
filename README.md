@@ -15,7 +15,7 @@ Please feel free to suggest modifications/updates.
     + [Singleton](./creational/singleton.py) - Done!
     + [Prototype](./creational/prototype.py) - Done!
     + [Factory](./creational/factory.py) - Done!
-    + [Builder](./creational/builder.py)
+    + [Builder](./creational/builder.py) - Done!
     + [Pool](./creational/pool.py)
 
 + [**Structural Patterns**](./structural)
