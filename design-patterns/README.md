@@ -11,14 +11,14 @@ Please feel free to suggest modifications/updates.
 
 ## Index
 
-+ [**Creational Patterns**](./creational)
++ [**Creational Patterns**](./creational) (4/5 Done)
     + [Singleton](./creational/singleton.py) - Done!
     + [Prototype](./creational/prototype.py) - Done!
     + [Factory](./creational/factory.py) - Done!
     + [Builder](./creational/builder.py) - Done!
     + [Pool](./creational/pool.py)
 
-+ [**Structural Patterns**](./structural)
++ [**Structural Patterns**](./structural) (0/6 Done)
     + [Pythonesque Decorator](./structural/pythonesque_decorator.py)
     + [Facade](./structural/facade.py)
     + [Proxy](./structural/proxy.py)
@@ -26,7 +26,7 @@ Please feel free to suggest modifications/updates.
     + [Adapter](./structural/adapter.py)
     + [Composite](./structural/composite.py)
 
-+ [**Behavioural Patterns**](./behavioural)
++ [**Behavioural Patterns**](./behavioural) (0/7 Done)
     + [Chain of Responsibility](./behavioural/chain_of_responsibility.py)
     + [Mediator](./behavioural/mediator.py)
     + [Observer](./behavioural/observer.py)
