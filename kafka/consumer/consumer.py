@@ -22,7 +22,7 @@ rotatorHandler = handlers.RotatingFileHandler(
     delay=0
 )
 logging.basicConfig(
-    level=zconsts.DEBUG_LEVEL,#Change to DEBUG for more info in the constants
+    level=zconsts.LOGGING_LEVEL,#Change to DEBUG for more info in the constants
     format='%(asctime)s;%(process)s;%(name)s;%(levelname)s;%(message)s',
     datefmt="%Y%m%d;%H:%M:%S",
     handlers=[rotatorHandler, ],
