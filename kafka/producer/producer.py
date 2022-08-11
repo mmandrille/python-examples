@@ -36,6 +36,7 @@ msgQueue = Queue()
 #Base Estructural code
 def msg_generator(exit_event):
     count = 0
+    check_time = datetime.now()
     while not exit_event.is_set():
         count += 1 #  to check and give some feedback
         # Generate a random msg:
