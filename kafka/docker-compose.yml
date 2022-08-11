@@ -1,7 +1,8 @@
 version: '3.7'
 x-services-vars: &services-vars
-  KAFKA_URL: broker:29092
+  KAFKA_URL: kafka:9092
   KAFKA_TOPIC: testing
+  KAFKA_PARTITIONS: 8 # This should be the same as consumer.MAX_TASKS
 
 x-locale-vars: &locale-vars
   TZ: US/Central
@@ -18,47 +19,44 @@ networks:
 
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
-    hostname: zookeeper
+    image: "bitnami/zookeeper:latest"
     container_name: zookeeper
-    restart: on-failure
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
     networks:
       - kafka_network
     ports:
-      - 22181:2181
+      - "2181:2181"
 
-  broker:
-    image: confluentinc/cp-kafka:7.0.1
-    container_name: broker
-    hostname: broker
-    restart: on-failure
+  kafka:
+    image: bitnami/kafka:2.5.0
+    container_name: kafka
+    hostname: kafka
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_LOG_RETENTION_HOURS: 48
-      KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 43400000
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=WARN,state.change.logger=WARN"
-      KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
-      KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR
+      - KAFKA_BROKER_ID=1
+      - KAFKA_HOSTNAME=kafka
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_LOG_RETENTION_HOURS=1
+      - KAFKA_LOG_CLEANER_DELETE_RETENTION_MS=3600000
+      - KAFKA_LOG4J_ROOT_LOGLEVEL=WARN
+    networks:
+      - kafka_network
     ports:
       - "9092:9092"
       - "29092:29092"
-    networks:
-      - kafka_network
     depends_on:
       - zookeeper
 
-  # Processing Certs
-  producer: # Script Receive CertStream Socket and send to Kafka 
+  # Sending Messages
+  producer:
     build: producer/.
     image: producer-image
     container_name: producer
@@ -69,10 +67,10 @@ services:
       - ./producer/logs:/logs/
     environment:
       PYTHONUNBUFFERED: 1
-      MAX_WORKERS: 2
+      MAX_WORKERS: 4
       MAX_QUEUE: 2500
       LOGGING_LEVEL: 10 # INFO
-      MSG_CREATION_DELAY_MS: 10
+      MSG_CREATION_DELAY_MS: 25 # We create 40 per second
       SCREENING_RATE: 500 # items
       # Globals
       <<: *locale-vars
@@ -80,11 +78,12 @@ services:
     networks:
       - kafka_network
     links:
-      - broker
+      - kafka
     depends_on:
-      - broker
+      - kafka
 
-  consumer: # Read Kafka messages, Process against ZClassifier and Save on Django
+  # Read Kafka messages
+  consumer:
     build: consumer/.
     image: consumer-image
     command: python consumer.py
@@ -96,15 +95,16 @@ services:
       PYTHONUNBUFFERED: 1
       MAX_TASKS: 8
       MAX_QUEUE: 2500
+      MSG_PROCESING_DELAY_MS: 250 # (MAX_TASKS * 1000) / MSG_PROCESING_DELAY_MS = msg per seconds
       SLEEP_TIME: 1
       LOGGING_LEVEL: 10 # INFO
-      SCREENING_RATE: 500 # items
+      SCREENING_RATE: 100 # items
       # Globals
       <<: *locale-vars
       <<: *services-vars
     networks:
       - kafka_network
     links:
-      - broker
+      - kafka
     depends_on:
-      - broker
+      - kafka
