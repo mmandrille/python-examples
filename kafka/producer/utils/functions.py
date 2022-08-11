@@ -25,7 +25,7 @@ def kafka_create_topic(KAFKA_URL, TOPIC_NAME):
             return True
 
         except NoBrokersAvailable:
-            logger.warn("Kafka not online in: %s, waiting...", KAFKA_URL)
+            logger.warning("\nKafka not online in: %s, waiting...", KAFKA_URL)
             time.sleep(1) # We wait to avoid overloading
         
         except TopicAlreadyExistsError:
@@ -36,11 +36,11 @@ def kafka_create_producer(KAFKA_URL, TOPIC_NAME):
     while True:
         try:
             producer = KafkaProducer(
-                bootstrap_servers=KAFKA_URL,
+                bootstrap_servers=[KAFKA_URL],
                 value_serializer=lambda x: json.dumps(x).encode('utf-8'),
             )
             logger.debug("Producer instanced on: %s", KAFKA_URL)
             return producer
         except NoBrokersAvailable:
-            logger.warn("Kafka not online in: %s, waiting...", KAFKA_URL)
+            logger.warning("\nKafka not online in: %s, waiting...", KAFKA_URL)
             time.sleep(1) # We wait to avoid overloading
