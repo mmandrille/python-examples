@@ -90,17 +90,13 @@ services:
     command: python consumer.py
     user: 1000:1000
     restart: on-failure
-    deploy:
-      replicas: 2
-      restart_policy:
-        condition: none
     volumes:
       - ./consumer/logs:/logs/
     environment:
       PYTHONUNBUFFERED: 1
       MAX_TASKS: 8
       MAX_QUEUE: 2500
-      SLEEP_TIME: 5
+      SLEEP_TIME: 1
       LOGGING_LEVEL: 10 # INFO
       SCREENING_RATE: 500 # items
       # Globals
