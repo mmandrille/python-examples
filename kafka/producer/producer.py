@@ -46,7 +46,7 @@ def msg_generator(exit_event):
         # Generate some delay
         time.sleep(zconsts.MSG_CREATION_DELAY_MS/1000) # sleep requiere seconds
         if count > zconsts.SCREENING_RATE:
-            qsize = msgQueue.size()
+            qsize = msgQueue.qsize()
             logging.info("%s put in queue, actual size: %s, %s items in %s", msg, qsize, count, (datetime.now() - check_time).total_seconds())
             if qsize > zconsts.MAX_QUEUE:
                 logging.warn("Queue over max size, you should allow more workers!")
