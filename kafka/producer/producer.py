@@ -5,6 +5,7 @@ import signal
 import string
 import random
 import logging
+from datetime import datetime
 from logging import handlers
 from queue import Empty as EmptyException
 from multiprocessing import Process, Event, Queue
@@ -44,12 +45,15 @@ def msg_generator(exit_event):
         msgQueue.put(msg)
         # Generate some delay
         time.sleep(zconsts.MSG_CREATION_DELAY_MS/1000) # sleep requiere seconds
-        if not count%zconsts.SCREENING_RATE:
+        if count > zconsts.SCREENING_RATE:
             qsize = msgQueue.size()
-            logging.info("%s put in queue, actual size: %s", msg, qsize)
+            logging.info("%s put in queue, actual size: %s, %s items in %s", msg, qsize, count, (datetime.now() - check_time).total_seconds())
             if qsize > zconsts.MAX_QUEUE:
                 logging.warn("Queue over max size, you should allow more workers!")
                 time.sleep(zconsts.SLEEP_TIME)
+            
+            #Restart lap
+            count, check_time = 0, datetime.now()
 
 def msg_sender(queue, exit_event):
     count = 0

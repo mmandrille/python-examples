@@ -25,6 +25,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+
     networks:
       - kafka_network
     ports:
@@ -45,7 +46,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_LOG_RETENTION_HOURS: 48
       KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 43400000
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=WARN"
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=WARN,state.change.logger=WARN"
       KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
       KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR
     ports:
@@ -69,9 +70,10 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
       MAX_WORKERS: 2
+      MAX_QUEUE: 2500
       LOGGING_LEVEL: 10 # INFO
       MSG_CREATION_DELAY_MS: 10
-      SCREENING_RATE: 500
+      SCREENING_RATE: 500 # items
       # Globals
       <<: *locale-vars
       <<: *services-vars
@@ -82,31 +84,31 @@ services:
     depends_on:
       - broker
 
-  # consumer: # Read Kafka messages, Process against ZClassifier and Save on Django
-  #   build: consumer/.
-  #   image: consumer-image
-  #   command: python consumer.py
-  #   user: 1000:1000
-  #   restart: on-failure
-  #   deploy:
-  #     replicas: 2
-  #     restart_policy:
-  #       condition: none
-  #   volumes:
-  #     - ./consumer/logs:/logs/
-  #   environment:
-  #     PYTHONUNBUFFERED: 1
-  #     MAX_TASKS: 32
-  #     MAX_QUEUE: 2500
-  #     SLEEP_TIME: 5
-  #     LOGGING_LEVEL: 10 # INFO
-  #     SCREENING_RATE: 10000
-  #     # Globals
-  #     <<: *locale-vars
-  #     <<: *services-vars
-  #   networks:
-  #     - kafka_network
-  #   links:
-  #     - broker
-  #   depends_on:
-  #     - broker
+  consumer: # Read Kafka messages, Process against ZClassifier and Save on Django
+    build: consumer/.
+    image: consumer-image
+    command: python consumer.py
+    user: 1000:1000
+    restart: on-failure
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: none
+    volumes:
+      - ./consumer/logs:/logs/
+    environment:
+      PYTHONUNBUFFERED: 1
+      MAX_TASKS: 8
+      MAX_QUEUE: 2500
+      SLEEP_TIME: 5
+      LOGGING_LEVEL: 10 # INFO
+      SCREENING_RATE: 500 # items
+      # Globals
+      <<: *locale-vars
+      <<: *services-vars
+    networks:
+      - kafka_network
+    links:
+      - broker
+    depends_on:
+      - broker

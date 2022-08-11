@@ -1,45 +1,78 @@
-#python import
-import time
+#Python imports
+import sys
 import json
+import time
+import asyncio
+import logging
+from logging import handlers
 from datetime import datetime
-#Package import
-from kafka import KafkaProducer
-from kafka.errors import NoBrokersAvailable
-#Proyect import
-from utils.constants import KAFKA_URL, KAFKA_TOPIC
+#Proyect imports
+from utils.classes import StatusClass
+from utils import constants as zconsts
+from utils import functions as zfuncs
 
-# Base code:
+
+#Logging definition:
+rotatorHandler = handlers.RotatingFileHandler(
+    filename='logs/certprocessor.log', 
+    mode='a',
+    maxBytes=10*1024*1024,
+    backupCount=5,
+    encoding=None,
+    delay=0
+)
+logging.basicConfig(
+    level=zconsts.DEBUG_LEVEL,#Change to DEBUG for more info in the constants
+    format='%(asctime)s;%(process)s;%(name)s;%(levelname)s;%(message)s',
+    datefmt="%Y%m%d;%H:%M:%S",
+    handlers=[rotatorHandler, ],
+)
+logger = logging.getLogger("certprocessor.MainCode")
+
+#Definition of process
+async def process_msgs(status):
+    # Monitoring
+    logger.info('queue_reader started...')
+    count=0
+    check_time = datetime.now()                        
+    #We start reading messages from kafka:
+    while True:
+        try:
+            # Read from Kafka Topic
+            msg = status.kafka_consumer.poll(timeout=1.0)
+            # Check message
+            if msg:
+                # We fetch a msg from kafka topic
+                asyncio.sleep(zconsts.MSG_PROCESING_DELAY_MS/1000) # Simulate async slow task
+                #some data sent to screen so we know is working xD
+                if zconsts.SCREENING:
+                    count+=1
+                    if count > zconsts.SCREENING_RATE:
+                        logger.info("{0} Readed from Topic:{1}. Processed {2} in {3} secs",
+                                    msg["message"],
+                                    zconsts.KAFKA_TOPIC,
+                                    count,
+                                    (datetime.now() - check_time).total_seconds()
+                                )
+                        #Restart lap
+                        count, check_time = 0, datetime.now()
+
+            else: # Kafka topic is empty
+                await asyncio.sleep(zconsts.SLEEP_TIME) # we make time of cpu for others process
+        except Exception as e:
+            logger.error('Uknown Fail receiving msg from kafka: %s', e, exc_info=sys.exc_info())
+
 def main():
-    #Preparing multithreading
-    processes = []
-    exit_event = Event()
-    # Kafka Create Topic:
-    if zfuncs.kafka_create_topic(zconsts.KAFKA_URL, zconsts.KAFKA_TOPIC):
-        logger.info("Kafka Online, Topic Created...")
+    status = StatusClass() # Instance Global Administrator
+    #Instance general loop
+    loop = asyncio.get_event_loop()
+    #We create async tasks
+    for x in range(zconsts.MAX_TASKS):
+        loop.create_task(process_msgs(status))
+        logger.info('{0}/{1} tasks created...'.format(x, zconsts.MAX_TASKS))
+    #We make the work generator start
+    loop.run_forever()
 
-#Code
-if __name__ == '__main__':
-    
-
-ready = False
-#Preparate kafka Producer
-while not ready:
-    try:
-        producer = KafkaProducer(
-                bootstrap_servers=KAFKA_URL,
-                value_serializer=lambda x: json.dumps(x).encode('utf-8'),
-            )
-        print("Begin sending Kafka Service in {0}...".format(KAFKA_URL))
-        ready = True
-    except NoBrokersAvailable:
-        time.sleep(1)#Esperamos un segundo mas
-        print("Waiting for Kafka Service in {0}...".format(KAFKA_URL))
-
-#Send staff
-for counter in range(CANT_TESTS):
-    msg = {
-        'time': str(datetime.now()),
-        'counter': counter,
-    }
-    send_status = producer.send(KAFKA_TOPIC, msg)
-    print('{0} msgs sent to {1}>{2}...'.format(counter, KAFKA_URL, KAFKA_TOPIC))
+#Launch time!
+if __name__ == "__main__":
+    main() # Run code
