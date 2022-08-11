@@ -13,22 +13,27 @@ from multiprocessing import Process, Event, Queue
 from utils import constants as zconsts
 from utils import functions as zfuncs
 
+# Avoid Kafka Flooding
+kafka_logger = logging.getLogger('kafka')
+kafka_logger.setLevel(logging.WARN)
+
 #Logging definition:
 rotatorHandler = handlers.RotatingFileHandler(
     filename='logs/producer.log', 
-    mode='a',
+    mode='w', # This will start a clean log file
     maxBytes=1024*1024*10, #10mb
-    backupCount=5,
-    encoding=None,
-    delay=0
+    backupCount=1,
+    delay=False
 )
+
 logging.basicConfig(
     level=zconsts.LOGGING_LEVEL,#Change to DEBUG for more info in the constants
-    format='%(asctime)s;%(process)s;%(name)s;%(levelname)s;%(message)s',
+    format='[%(asctime)s;%(process)s;%(name)s;%(levelname)s] %(message)s',
     datefmt="%y-%m-%d %H:%M:%S",
-    handlers=[rotatorHandler, ],
+    handlers=[rotatorHandler, logging.StreamHandler()],
 )
-logger = logging.getLogger("MainCode")
+
+logger = logging.getLogger("Main")
 
 #Definition of global objects
 msgQueue = Queue()
@@ -41,16 +46,16 @@ def msg_generator(exit_event):
         count += 1 #  to check and give some feedback
         # Generate a random msg:
         chars = ''.join([string.ascii_letters, string.digits])
-        msg = {"message": ''.join([random.SystemRandom().choice(chars) for i in range(50)])} # Its a json(?
+        msg = {"message": ''.join([random.SystemRandom().choice(chars) for i in range(25)])} # Its a json(?
         #Add to queue
         msgQueue.put(msg)
         # Generate some delay
         time.sleep(zconsts.MSG_CREATION_DELAY_MS/1000) # sleep requiere seconds
         if count > zconsts.SCREENING_RATE:
             qsize = msgQueue.qsize()
-            logging.info("%s put in queue, actual size: %s, %s items in %s", msg, qsize, count, (datetime.now() - check_time).total_seconds())
+            logger.info("%s put in queue, actual size: %s, %s items in %s", msg["message"], qsize, count, (datetime.now() - check_time).total_seconds())
             if qsize > zconsts.MAX_QUEUE:
-                logging.warn("Queue over max size, you should allow more workers!")
+                logger.warning("\nQueue over max size, you should allow more workers!")
                 time.sleep(zconsts.SLEEP_TIME)
             
             #Restart lap
@@ -70,18 +75,18 @@ def msg_sender(queue, exit_event):
             count += 1
             if not count%zconsts.SCREENING_RATE:
                 qsize = msgQueue.size()
-                logging.info("%s sended to Kafka, Queue Size is %s", msg, qsize)
+                logger.info("%s sended to Kafka, Queue Size is %s", msg, qsize)
             
             
         except EmptyException:
             time.sleep(zconsts.WAIT_TIME)#We avoid overloading
             generator_fail_count+=1
             if generator_fail_count == 30:
-                logging.warn("Queue Empty for %ss, something is going wrong with generator!", zconsts.WAIT_TIME * generator_fail_count)
+                logger.warning("\nQueue Empty for %ss, something is going wrong with generator!", zconsts.WAIT_TIME * generator_fail_count)
                 generator_fail_count == 0 # Reset Counter
 
         except Exception as e:
-            logger.error(e, exc_info=True) # Error in processesing
+            logger.error("\n%s", e, exc_info=True) # Error in processesing
         
 
 def main():
