@@ -20,12 +20,18 @@ def kafka_create_topic(KAFKA_URL, TOPIC_NAME):
             admin_client = KafkaAdminClient(
                 bootstrap_servers=KAFKA_URL,
             )
-            topic_list = [NewTopic(name=TOPIC_NAME, num_partitions=1, replication_factor=1), ]
+            topic_list = [
+                NewTopic(
+                    name=TOPIC_NAME,
+                    num_partitions=zconsts.KAFKA_PARTITIONS,
+                    replication_factor=1
+                ),
+            ]
             admin_client.create_topics(new_topics=topic_list, validate_only=False)
             return True
 
         except NoBrokersAvailable:
-            logger.warning("\nKafka not online in: %s, waiting...", KAFKA_URL)
+            logger.warning("Kafka not online in: %s, waiting...", KAFKA_URL)
             time.sleep(1) # We wait to avoid overloading
         
         except TopicAlreadyExistsError:
@@ -42,5 +48,5 @@ def kafka_create_producer(KAFKA_URL, TOPIC_NAME):
             logger.debug("Producer instanced on: %s", KAFKA_URL)
             return producer
         except NoBrokersAvailable:
-            logger.warning("\nKafka not online in: %s, waiting...", KAFKA_URL)
+            logger.warning("Kafka not online in: %s, waiting...", KAFKA_URL)
             time.sleep(1) # We wait to avoid overloading
