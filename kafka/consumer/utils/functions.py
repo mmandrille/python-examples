@@ -1,4 +1,5 @@
 # Python imports
+import json
 import sys
 import time
 import asyncio
@@ -17,16 +18,16 @@ def create_consumer():
         try:
             consumer = KafkaConsumer(
                 zconsts.KAFKA_TOPIC,
-                group_id=1,
                 bootstrap_servers=[zconsts.KAFKA_URL],
-                auto_offset_reset='beginning',
+                #auto_offset_reset=None,
                 enable_auto_commit=True,
-                session_timeout_ms=zconsts.WAIT_TIME              
+                group_id="1",
+                value_deserializer=lambda msg: json.loads(msg.decode('utf-8'))
             )
             #if this succeed:
-            logging.info("Begin reading Kafka Service in %s...", format(zconsts.KAFKA_URL))
+            logger.info("Begin reading Kafka Service in %s...", format(zconsts.KAFKA_URL))
             return consumer
 
         except:#If kafka not online
             time.sleep(5)#we wait one more second
-            logging.warning("Waiting for Kafka Service in %s...", format(zconsts.KAFKA_URL))
+            logger.warning("\nWaiting for Kafka Service in %s...", format(zconsts.KAFKA_URL))
