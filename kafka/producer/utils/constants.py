@@ -13,5 +13,6 @@ SCREENING = os.getenv('PYTHON_SCREENING', default=True)
 SCREENING_RATE = int(os.getenv('SCREENING_RATE', default=5000))
 
 #kafka
-KAFKA_URL = os.getenv('KAFKA_URL', default='localhost:9092') # This is with: docker-compose -f docker-compose.yml up broker
+KAFKA_URL = os.getenv('KAFKA_URL', default='localhost:29092') # This is with: docker-compose -f docker-compose.yml up kafka
 KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', default='testing')
+KAFKA_PARTITIONS = int(os.getenv('KAFKA_PARTITIONS', default=10))
