@@ -74,7 +74,7 @@ def msg_sender(queue, exit_event):
             # Some feedback
             count += 1
             if not count%zconsts.SCREENING_RATE:
-                qsize = msgQueue.size()
+                qsize = msgQueue.qsize()
                 logger.info("%s sended to Kafka, Queue Size is %s", msg, qsize)
             
             
