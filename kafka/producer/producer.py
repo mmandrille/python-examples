@@ -53,9 +53,9 @@ def msg_generator(exit_event):
         time.sleep(zconsts.MSG_CREATION_DELAY_MS/1000) # sleep requiere seconds
         if count > zconsts.SCREENING_RATE:
             qsize = msgQueue.qsize()
-            logger.info("%s put in queue, actual size: %s, %s items in %s", msg["message"], qsize, count, (datetime.now() - check_time).total_seconds())
+            logger.info("%s put in queue (Actual size: %s, Processed: %s items in %s)", msg["message"], qsize, count, (datetime.now() - check_time).total_seconds())
             if qsize > zconsts.MAX_QUEUE:
-                logger.warning("\nQueue over max size, you should allow more workers!")
+                logger.warning("Queue over max size, you should allow more workers!")
                 time.sleep(zconsts.SLEEP_TIME)
             
             #Restart lap
@@ -82,11 +82,11 @@ def msg_sender(queue, exit_event):
             time.sleep(zconsts.WAIT_TIME)#We avoid overloading
             generator_fail_count+=1
             if generator_fail_count == 30:
-                logger.warning("\nQueue Empty for %ss, something is going wrong with generator!", zconsts.WAIT_TIME * generator_fail_count)
+                logger.warning("Queue Empty for %ss, something is going wrong with generator!", zconsts.WAIT_TIME * generator_fail_count)
                 generator_fail_count == 0 # Reset Counter
 
         except Exception as e:
-            logger.error("\n%s", e, exc_info=True) # Error in processesing
+            logger.error("%s", e, exc_info=True) # Error in processesing
         
 
 def main():
