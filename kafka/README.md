@@ -10,4 +10,4 @@ To try this you will need docker and docker-composer installed:
     
 
 To stat it just:
-    ./deploy.sh
+    ./start.sh
