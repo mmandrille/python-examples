@@ -12,6 +12,8 @@ Some more complex examples will requiere extra steps to run them, in that cases 
 Please feel free to suggest modifications/updates.
 
 ## Index
++ [***Kafka (With Async and MultiThreading over Docker)***](./kafka)  - Done!
+
 + [***Pattern Designs***](./design-patterns)
     + [**Creational Patterns**](./design-patterns/creational)
         + [Singleton](./design-patterns/creational/singleton.py) - Done!

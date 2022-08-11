@@ -9,7 +9,6 @@ MAX_QUEUE = int(os.getenv('MAX_QUEUE', default=5000))
 WAIT_TIME = int(os.getenv('WAIT_TIME', default=30))
 SLEEP_TIME = int(os.getenv('SLEEP_TIME', default=30))
 MAX_WORKERS = int(os.getenv('MAX_WORKERS', default=4))
-SCREENING = os.getenv('PYTHON_SCREENING', default=True)
 SCREENING_RATE = int(os.getenv('SCREENING_RATE', default=5000))
 
 #kafka

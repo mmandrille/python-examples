@@ -4,8 +4,8 @@ import time
 import logging
 from logging import handlers
 # Package imports
-from kafka.admin import KafkaAdminClient, NewTopic
 from kafka import KafkaProducer
+from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.errors import NoBrokersAvailable, TopicAlreadyExistsError
 # Project imports
 from . import constants as zconsts
@@ -43,7 +43,7 @@ def kafka_create_producer(KAFKA_URL, TOPIC_NAME):
         try:
             producer = KafkaProducer(
                 bootstrap_servers=[KAFKA_URL],
-                value_serializer=lambda x: json.dumps(x).encode('utf-8'),
+                value_serializer=lambda v: json.dumps(v).encode('utf-8')
             )
             logger.debug("Producer instanced on: %s", KAFKA_URL)
             return producer

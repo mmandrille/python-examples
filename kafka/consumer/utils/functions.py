@@ -13,23 +13,22 @@ from utils import constants as zconsts
 logger = logging.getLogger("Functions")
 
 # Our functions
-def create_consumer():
-    while True:#loop infinito waiting till kafka is online
+def create_consumer(process_id):
+    while True: # eternal loop waiting till kafka is online
         try:
             consumer = KafkaConsumer(
                 zconsts.KAFKA_TOPIC,
                 bootstrap_servers=[zconsts.KAFKA_URL],
-                #auto_offset_reset="earliest",
-                #session_timeout_ms=60000,
-                #heartbeat_interval_ms=5000,
-                #enable_auto_commit=True,
-                #group_id="1",
-                value_deserializer=lambda msg: json.loads(msg.decode('utf-8'))
+                # group_id="1",
+                # session_timeout_ms=60000,
+                # enable_auto_commit=True,
+                # auto_offset_reset='beginning',
+                value_deserializer=lambda v: json.loads(v.decode("utf-8"))
             )
             #if this succeed:
-            logger.info("Begin reading Kafka Service in %s...", format(zconsts.KAFKA_URL))
+            logger.info("Consumer-%s Begin reading Kafka Broker in %s...", process_id, zconsts.KAFKA_URL)
             return consumer
 
-        except:#If kafka not online
+        except Exception as e:#If kafka not online
             time.sleep(zconsts.SLEEP_TIME)#we wait one more second
-            logger.warning("Waiting for Kafka Service in %s...", format(zconsts.KAFKA_URL))
+            logger.warning("Waiting for Kafka Broker in %s.\n%s", zconsts.KAFKA_URL, e)

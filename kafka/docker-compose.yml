@@ -12,10 +12,11 @@ x-locale-vars: &locale-vars
 # Internal Connections between services
 networks:
   kafka_network:
+    name: kafka_network
     driver: bridge
     ipam:
       config:
-       - subnet: 10.0.4.0/24
+       - subnet: 10.0.1.0/24
 
 services:
   zookeeper:
@@ -42,6 +43,7 @@ services:
       - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://localhost:29092
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_EXTER_BROKER_LISTENER_NAME=EXTERNAL
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
       - KAFKA_LOG_RETENTION_HOURS=1
@@ -71,7 +73,7 @@ services:
       MAX_QUEUE: 2500
       LOGGING_LEVEL: 10 # INFO
       MSG_CREATION_DELAY_MS: 25 # We create 40 per second
-      SCREENING_RATE: 500 # items
+      SCREENING_RATE: 250 # items
       # Globals
       <<: *locale-vars
       <<: *services-vars
@@ -86,6 +88,7 @@ services:
   consumer:
     build: consumer/.
     image: consumer-image
+    container_name: consumer
     command: python consumer.py
     user: 1000:1000
     restart: on-failure
@@ -94,11 +97,10 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
       MAX_TASKS: 8
-      MAX_QUEUE: 2500
-      MSG_PROCESING_DELAY_MS: 250 # (MAX_TASKS * 1000) / MSG_PROCESING_DELAY_MS = msg per seconds
+      MSG_PROCESING_DELAY_MS: 125 # (MAX_TASKS * 1000) / MSG_PROCESING_DELAY_MS = msg per seconds
       SLEEP_TIME: 1
       LOGGING_LEVEL: 10 # INFO
-      SCREENING_RATE: 100 # items
+      SCREENING_RATE: 50 # items
       # Globals
       <<: *locale-vars
       <<: *services-vars

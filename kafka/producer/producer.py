@@ -46,7 +46,7 @@ def msg_generator(exit_event):
         count += 1 #  to check and give some feedback
         # Generate a random msg:
         chars = ''.join([string.ascii_letters, string.digits])
-        msg = {"message": ''.join([random.SystemRandom().choice(chars) for i in range(25)])} # Its a json(?
+        msg = {"message": ''.join([random.SystemRandom().choice(chars) for i in range(25)])} # Its a json!
         #Add to queue
         msgQueue.put(msg)
         # Generate some delay
@@ -75,7 +75,7 @@ def msg_sender(queue, exit_event):
             count += 1
             if not count%zconsts.SCREENING_RATE:
                 qsize = msgQueue.qsize()
-                logger.info("%s sended to Kafka, Queue Size is %s", msg, qsize)
+                logger.info("%s sended to Kafka (Queue Size is %s)", msg["message"], qsize)
             
             
         except EmptyException:

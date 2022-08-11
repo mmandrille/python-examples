@@ -40,16 +40,17 @@ async def process_msgs(process_id):
     count=0
     check_time = datetime.now()                        
     #We start reading messages from kafka:
-    kafka_consumer = zfuncs.create_consumer()
+    kafka_consumer = zfuncs.create_consumer(process_id)
     for msg in kafka_consumer:
         try:
-            if msg:
+            if msg: # Check if has msg.value
                 await asyncio.sleep(zconsts.MSG_PROCESING_DELAY_MS/1000) # Simulate async slow task
                 #some data sent to screen so we know is working xD
                 count+=1
                 if count > zconsts.SCREENING_RATE:
                     logger.info(
-                        "%s Readed from Topic:%s. Processed %s in %s secs",
+                        "PS%s: %s Readed from Topic: %s (Processed %s in %s secs).",
+                        process_id,
                         msg.value,
                         zconsts.KAFKA_TOPIC,
                         count,
@@ -58,10 +59,11 @@ async def process_msgs(process_id):
                     #Restart lap
                     count, check_time = 0, datetime.now()
             else:
+                logger.warning('Msg Fetch Error: %s', msg)
                 await asyncio.sleep(zconsts.SLEEP_TIME)
 
         except KafkaError as e:
-            logger.warning('\nKafka Error: %s', e)
+            logger.warning('Kafka Error: %s', e)
 
         except Exception as e:
             logger.error("Error receiving msg from kafka: %s", e, exc_info=sys.exc_info())
@@ -73,9 +75,9 @@ def main():
     #Instance general loop
     loop = asyncio.get_event_loop()
     #We create async tasks
-    for x in range(zconsts.MAX_TASKS):
+    for x in range(1, zconsts.MAX_TASKS+1):
         loop.create_task(process_msgs(x))
-        logger.info('{0}/{1} tasks created...'.format(x, zconsts.MAX_TASKS))
+        logger.info('%s/%s tasks created...', x, zconsts.MAX_TASKS)
     #We make the work generator start
     loop.run_forever()
 
