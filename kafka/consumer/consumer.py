@@ -41,33 +41,33 @@ async def process_msgs(process_id):
     check_time = datetime.now()                        
     #We start reading messages from kafka:
     kafka_consumer = zfuncs.create_consumer()
-    while True:
+    for msg in kafka_consumer:
         try:
-            # We fetch a msg from kafka topic
-            msg = kafka_consumer.poll(timeout_ms=0.1)
             if msg:
-                asyncio.sleep(zconsts.MSG_PROCESING_DELAY_MS/1000) # Simulate async slow task
+                await asyncio.sleep(zconsts.MSG_PROCESING_DELAY_MS/1000) # Simulate async slow task
                 #some data sent to screen so we know is working xD
-                if zconsts.SCREENING:
-                    count+=1
-                    if count > zconsts.SCREENING_RATE:
-                        logger.info(
-                            "%s Readed from Topic:%s. Processed %s in %s secs",
-                            msg.value["message"],
-                            zconsts.KAFKA_TOPIC,
-                            count,
-                            (datetime.now() - check_time).total_seconds()
-                        )
-                        #Restart lap
-                        count, check_time = 0, datetime.now()
+                count+=1
+                if count > zconsts.SCREENING_RATE:
+                    logger.info(
+                        "%s Readed from Topic:%s. Processed %s in %s secs",
+                        msg.value,
+                        zconsts.KAFKA_TOPIC,
+                        count,
+                        (datetime.now() - check_time).total_seconds()
+                    )
+                    #Restart lap
+                    count, check_time = 0, datetime.now()
             else:
-                asyncio.sleep(zconsts.SLEEP_TIME)
+                await asyncio.sleep(zconsts.SLEEP_TIME)
 
         except KafkaError as e:
             logger.warning('\nKafka Error: %s', e)
 
         except Exception as e:
-            logger.error("\nUknown Fail receiving msg from kafka: %s", e, exc_info=sys.exc_info())
+            logger.error("Error receiving msg from kafka: %s", e, exc_info=sys.exc_info())
+
+        # we make time of cpu for processeing certs every lap
+        await asyncio.sleep(0)
 
 def main():
     #Instance general loop
