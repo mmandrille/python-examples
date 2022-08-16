@@ -1,0 +1,24 @@
+version: '3.7'
+
+# Internal Connections between services
+networks:
+  cache_network:
+    name: cache_network
+    driver: bridge
+    ipam:
+      config:
+       - subnet: 10.0.5.0/24
+
+# Service definitions
+services:
+  memcache:
+    image: memcached
+    container_name: memcached
+    restart: on-failure
+    entrypoint:
+      - memcached
+      - -m 1024
+    ports:
+      - "11211:11211"
+    networks:
+      - cache_network
