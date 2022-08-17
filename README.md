@@ -12,7 +12,7 @@ Some more complex examples will requiere extra steps to run them, in that cases 
 Please feel free to suggest modifications/updates.
 
 ## Index
-+ ***Tools***
++ **Tools**
     + [***Kafka (With Async and MultiThreading over Docker)***](./kafka)  - Done!
     + [***Memcached***](./memcached)  - Done!
 
@@ -40,3 +40,6 @@ Please feel free to suggest modifications/updates.
         + [Memento](./design-patterns/behavioural/memento.py)
         + [Registry](./design-patterns/behavioural/registry.py)
         + [Strategy](./design-patterns/behavioural/strategy.py)
+
++ **Exercises**
+    + [***HackerRank***](./hackerrank)  - Done!
