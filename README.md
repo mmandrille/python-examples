@@ -12,6 +12,7 @@ Please feel free to suggest modifications/updates.
 
 ## Index
 + **Basics**
+    + [***Regular Expressions***](./Basics/regex.py)
     + [***Lambda Function***](./Basics/lambda.py)
     + [***ClassMethods & StaticMethods***](./Basics/class-static_methods.py)
     + [***Decoratos***](./Basics/decorators.py)
