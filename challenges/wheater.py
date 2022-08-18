@@ -54,8 +54,8 @@ if __name__ == "__main__":
     
     print("Second Attempt:")
     # We will use a Stack
-    stack = Queue() # FIFO stack
     response = []
+    stack = Queue() # FIFO stack
     max = 0
     # Weather is: [20, 23, 22, 20, 19, 24, 24]
     for idx in range(len(weather)): # First loop
@@ -67,9 +67,8 @@ if __name__ == "__main__":
             print(f"We loaded items to stack: {stack.queue}, results: {response}")
             # We generate results:
             last = stack.get()
-            for d in range(last[1]-len(response))[::-1]:
-                response.append(d+1)
-                print(f"We fetch: {last}, we need to add {last[1]-len(response)} items")
+            # We apppend items for every diff of new higher with older one
+            response += [d+1 for d in range(last[1]-len(response))[::-1]]
     # We need to append 0 to not responded ones:
     response += [0] * (len(weather) - len(response))
     # Check result
