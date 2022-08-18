@@ -32,28 +32,32 @@ class TempsDict(dict):
         # Conditional return
         return min(valids) if valids else 0
 
+def check_result(response):
+    print(f"Checking Response: {response}")
+    assert response == expected
+    print("Success!")
+
 # Run:
 if __name__ == "__main__":
     print(f"Weather is: {weather}")
     print(f"We expected: {expected}")
     
-    print("First Attempt:")
-    # Generate dict --> First loop
+    # Generate dict --> Using Custom Dict
+    print("\nFirst Attempt with Dict:")
     temp_dict = TempsDict()
     for idx in range(len(weather)):
         temp_dict.add_day(idx, weather[idx])
-    print(f"Dict Generated: {temp_dict}")
     # Resolve:
-    response = []
-    for idx in range(len(weather)):
-        response.append(temp_dict.get_higher(idx, weather[idx]))
+    response = [
+        temp_dict.get_higher(idx, weather[idx])
+        for idx in range(len(weather))
+    ]        
     # Check result
-    print(f"Checking Response: {response}")
-    assert response == expected
-    print("Success:\n")
+    check_result(response)
     
-    print("Second Attempt:")
+    
     # We will use a Stack
+    print("\nSecond Attempt with Stack:")
     response = []
     stack = Queue() # FIFO stack
     max = 0
@@ -63,15 +67,12 @@ if __name__ == "__main__":
         if not stack or (weather[idx] >= max): # If no stack or temp is higher than last
             max = weather[idx] # We save max value
             # We load it on stack
-            stack.put((weather[idx],idx)) # Keep loading
-            print(f"We loaded items to stack: {stack.queue}, results: {response}")
+            stack.put((weather[idx],idx)) # We load item to Stack in the rigth position
             # We generate results:
-            last = stack.get()
-            # We apppend items for every diff of new higher with older one
+            last = stack.get() # We get older item
+            # We apppend a items for every diff of new higher with older one
             response += [d+1 for d in range(last[1]-len(response))[::-1]]
     # We need to append 0 to not responded ones:
     response += [0] * (len(weather) - len(response))
     # Check result
-    print(f"Checking Response: {response}")
-    assert response == expected
-    print("Success:\n")
+    check_result(response)
