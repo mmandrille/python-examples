@@ -68,10 +68,9 @@ if __name__ == "__main__":
             max = weather[idx] # We save max value
             # We load it on stack
             stack.put((weather[idx],idx)) # We load item to Stack in the rigth position
-            # We generate results:
-            last = stack.get() # We get older item
-            # We apppend a items for every diff of new higher with older one
-            response += [d+1 for d in range(last[1]-len(response))[::-1]]
+            # Load list
+            diff = stack.get()[1] - len(response) # Index of older Higher vs how many results already have
+            response += [d+1 for d in range(diff)[::-1]] # We apppend a items for every diff (Decrement)
     # We need to append 0 to not responded ones:
     response += [0] * (len(weather) - len(response))
     # Check result
