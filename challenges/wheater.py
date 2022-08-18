@@ -1,9 +1,8 @@
 '''
-    Tenes un vector con las temperaturas de cada día.
-    Por ejemplo: [20, 23, 22, 20, 19, 24, 24]
-    Qué algoritmo implementarías para saber, para cada día, cuantos días tenes que esperar para que la temperatura sea mayor o igual a la de ese día.
-    El vector de salida pra el ejemple debería ser [1, 4, 3, 2, 1, 0]
-    En caso de que no haya un dia de mayor temperatura devolver 0.
+    There is a array with temps for each day, for example: [20, 23, 22, 20, 19, 24, 24]
+    Code an algoritm, which for each day, how many days you need to wait for a warmer or equal day
+    The result array for example should be: [1, 4, 3, 2, 1, 0]
+    In case of no higher/equal temp return 0
 '''
 #package imports
 from queue import Queue
