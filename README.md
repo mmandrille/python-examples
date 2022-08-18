@@ -5,13 +5,16 @@ The purpose of this project is to document my coding practices and examples, loo
 I would recomend to install virtual enviroment and install there with:
 - python3 -m venv venv
 - source venv/bin/activate
-- pip install -r requeriments.txt   //Instala dependencias
+- pip install -r requeriments.txt   //Install dependencies
 
-Some more complex examples will requiere extra steps to run them, in that cases the Readme inside the folder will examplin how to do it.
-
+Some more complex examples will requiere extra steps to run them, in that cases the Readme file inside the folder will examplin how to do it.
 Please feel free to suggest modifications/updates.
 
 ## Index
++ **Basics**
+    + [***ClassMethods & StaticMethods***](./Basics/class-static_methods.py)
+    + [***Decoratos***](./Basics/decorators.py)
+
 + **Tools**
     + [***Kafka (With Async and MultiThreading over Docker)***](./kafka)  - Done!
     + [***Memcached***](./memcached)  - Done!
