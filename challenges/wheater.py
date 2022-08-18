@@ -31,6 +31,38 @@ class TempsDict(dict):
         # Conditional return
         return min(valids) if valids else 0
 
+def with_custom_dict(weather):
+    print("\nFirst Attempt with Dict:")
+    temp_dict = TempsDict()
+    # Load dict
+    for idx in range(len(weather)):
+        temp_dict.add_day(idx, weather[idx])
+    # Resolve:
+    return [
+        temp_dict.get_higher(idx, weather[idx])
+        for idx in range(len(weather))
+    ]
+
+def with_stack(weather):
+    print("\nSecond Attempt with Stack:")
+    # Generate temp variables
+    
+    stack = Queue() # FIFO stack
+    max = 0
+    response = []
+    for idx in range(len(weather)): # First loop
+        # if higher We load the stack
+        if not stack or (weather[idx] >= max): # If no stack or temp is higher than last
+            max = weather[idx] # We save max value
+            # We load it on stack
+            stack.put((weather[idx],idx)) # We load item to Stack in the rigth position
+            # Load list with lack ones
+            diff = stack.get()[1] - len(response) # Index of older Higher vs how many results already have
+            response += [d+1 for d in range(diff)[::-1]] # We apppend a items for every diff (Decrement)
+    # We need to append 0 to not responded ones:
+    response += [0] * (len(weather) - len(response))
+    return response
+
 def check_result(response):
     print(f"Checking Response: {response}")
     assert response == expected
@@ -42,35 +74,10 @@ if __name__ == "__main__":
     print(f"We expected: {expected}")
     
     # Generate dict --> Using Custom Dict
-    print("\nFirst Attempt with Dict:")
-    temp_dict = TempsDict()
-    for idx in range(len(weather)):
-        temp_dict.add_day(idx, weather[idx])
-    # Resolve:
-    response = [
-        temp_dict.get_higher(idx, weather[idx])
-        for idx in range(len(weather))
-    ]        
-    # Check result
+    response = with_custom_dict(weather)
     check_result(response)
     
-    
-    # We will use a Stack
-    print("\nSecond Attempt with Stack:")
-    response = []
-    stack = Queue() # FIFO stack
-    max = 0
-    # Weather is: [20, 23, 22, 20, 19, 24, 24]
-    for idx in range(len(weather)): # First loop
-        # if higher We load the stack
-        if not stack or (weather[idx] >= max): # If no stack or temp is higher than last
-            max = weather[idx] # We save max value
-            # We load it on stack
-            stack.put((weather[idx],idx)) # We load item to Stack in the rigth position
-            # Load list
-            diff = stack.get()[1] - len(response) # Index of older Higher vs how many results already have
-            response += [d+1 for d in range(diff)[::-1]] # We apppend a items for every diff (Decrement)
-    # We need to append 0 to not responded ones:
-    response += [0] * (len(weather) - len(response))
-    # Check result
+
+    # Using a Stack
+    response = with_stack(weather)
     check_result(response)
