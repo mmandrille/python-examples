@@ -1,9 +1,9 @@
 '''
-Tenes un vector con las temperaturas de cada día.
-Por ejemplo: [20, 23, 22, 20, 19, 24, 24]
-Qué algoritmo implementarías para saber, para cada día, cuantos días tenes que esperar para que la temperatura sea mayor o igual a la de ese día.
-El vector de salida pra el ejemple debería ser [1, 4, 3, 2, 1, 0]
-En caso de que no haya un dia de mayor temperatura devolver 0.
+    Tenes un vector con las temperaturas de cada día.
+    Por ejemplo: [20, 23, 22, 20, 19, 24, 24]
+    Qué algoritmo implementarías para saber, para cada día, cuantos días tenes que esperar para que la temperatura sea mayor o igual a la de ese día.
+    El vector de salida pra el ejemple debería ser [1, 4, 3, 2, 1, 0]
+    En caso de que no haya un dia de mayor temperatura devolver 0.
 '''
 #package imports
 from queue import Queue
