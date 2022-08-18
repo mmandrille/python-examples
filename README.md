@@ -12,8 +12,10 @@ Please feel free to suggest modifications/updates.
 
 ## Index
 + **Basics**
+    + [***Lambda Function***](./Basics/lambda.py)
     + [***ClassMethods & StaticMethods***](./Basics/class-static_methods.py)
     + [***Decoratos***](./Basics/decorators.py)
+    + [***Map Iterator***](./Basics/map.py)
 
 + **Tools**
     + [***Kafka (With Async and MultiThreading over Docker)***](./kafka)  - Done!
