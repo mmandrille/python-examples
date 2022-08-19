@@ -1,33 +1,44 @@
 '''
     There is a Stair with N steps. 
-    In every step you could take one or two up.
+    In every step you could take one or two steps up.
     Create a fuction that calculate how many different ways of take the stair exists
 '''
-# steps n=5
-#1# 0 1 2 3 4 5 
-#2# 0 1 2 3 5
-#3# 0 1 2 4 5
-#4# 0 1 3 4 5
-#5# 0 1 3 5
-#6# 0 2 3 4 5
-#7# 0 2 3 5
-#8# 0 2 4 5
+# Imports
+from functools import lru_cache
 
-class RecursiveCounter():
-    def __init__(self, max_steps):
-        print("Running Recursive Approach:")
-        self.counter = 0
-        self.max = max_steps
+# Definitions
+class RecursiveClimber():
+    def __init__(self, height):
+        self.ways = 0
+        self.height = height
         self.calc_recursive(0) # We are out of stair (to 1 or 2)
-        print(f"There are {self.counter} possibilities with {self.max} max_steps")
+        print(f"RecursiveClimber: There are {self.ways} possibilities with {height} max_steps")
     
+    # Here we utilize recursive executions
     def calc_recursive(self, step):
-        if step < self.max:
-            self.calc_recursive(step+1) # Calculate one step
-            self.calc_recursive(step+2) # Calculate other step
-        elif step == self.max:
-            self.counter+=1
+        if step < self.height:
+            self.calc_recursive(step+1) # climb one step
+            self.calc_recursive(step+2) # climb other step
+        elif step == self.height:
+            # Every time we get to heigh on a way, we increase ways
+            self.ways+=1 # Basicaly we will generate a recursion for every possible way
+
+def countWays(height):
+    res = [0] * (height + 1) # We generate one position for every lvl of the stair
+    res[0] = 0 # at no height no steps
+    res[1] = 1 # only one step height, only one step
+    res[2] = 2 # only two options at max 2 steps (1-1 and 2)
+ 
+    for i in range(3, height+1): # We will calculate all the heights
+        res[i] = res[i-2] + res[i-1] # every lvl possibilities its the sum of previous two
+ 
+    print(f"countSteps: There are {res[height]} possibilities with {height} max_steps")
+    return res[height]
 
 # Run:
 if __name__ == "__main__":
-    icounter = RecursiveCounter(5)
+    stair_levels = 32
+    cs = countWays(stair_levels)
+    rc = RecursiveClimber(stair_levels) # Much slower
+    # Check all resolve the same
+    assert rc.ways == cs

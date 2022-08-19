@@ -55,19 +55,14 @@ class FibonacciClass:
     def __init__(self):
         self.cache = [0, 1]
 
-    def __call__(self, n):
-        # Validate the value of n
-        if not (isinstance(n, int) and n >= 0):
-            raise ValueError(f'Positive integer number expected, got "{n}"')
-
+    def __call__(self, n): # After Instance we can use it as function
         # Check for computed Fibonacci numbers
         if n < len(self.cache):
             return self.cache[n]
         else:
             # Compute and cache the requested Fibonacci number
-            fib_number = self(n - 1) + self(n - 2)
-            self.cache.append(fib_number)
-
+            fib_number = self(n - 1) + self(n - 2) # We use recursive calling
+            self.cache.append(fib_number) # We feed cache for next calling
         return self.cache[n]
 
 if __name__ == '__main__':
