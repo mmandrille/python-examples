@@ -11,14 +11,14 @@ Some more complex examples will requiere extra steps to run them, in that cases 
 Please feel free to suggest modifications/updates.
 
 ## Index
-+ **Basics**
++ [**Basics**](./Basics)
     + [***Regular Expressions***](./Basics/regex.py)
     + [***Lambda Function***](./Basics/lambda.py)
     + [***ClassMethods & StaticMethods***](./Basics/class-static_methods.py)
     + [***Decoratos***](./Basics/decorators.py)
     + [***Map Iterator***](./Basics/map.py)
-
-+ **Tools**
++ [**Challenges**](./challenges)
++ [**Tools**]
     + [***Kafka (With Async and MultiThreading over Docker)***](./kafka)  - Done!
     + [***Memcached***](./memcached)  - Done!
 
@@ -29,7 +29,6 @@ Please feel free to suggest modifications/updates.
         + [Factory](./design-patterns/creational/factory.py) - Done!
         + [Builder](./design-patterns/creational/builder.py) - Done!
         + [Pool](./design-patterns/creational/pool.py)
-
     + [**Structural Patterns**](./design-patterns/structural)
         + [Pythonesque Decorator](./design-patterns/structural/pythonesque_decorator.py)
         + [Facade](./design-patterns/structural/facade.py)
@@ -37,7 +36,6 @@ Please feel free to suggest modifications/updates.
         + [Flyweight](./design-patterns/structural/flyweight.py)
         + [Adapter](./design-patterns/structural/adapter.py)
         + [Composite](./design-patterns/structural/composite.py)
-
     + [**Behavioural Patterns**](./design-patterns/behavioural)
         + [Chain of Responsibility](./design-patterns/behavioural/chain_of_responsibility.py)
         + [Mediator](./design-patterns/behavioural/mediator.py)
@@ -46,6 +44,3 @@ Please feel free to suggest modifications/updates.
         + [Memento](./design-patterns/behavioural/memento.py)
         + [Registry](./design-patterns/behavioural/registry.py)
         + [Strategy](./design-patterns/behavioural/strategy.py)
-
-+ **Exercises**
-    + [***HackerRank***](./hackerrank)  - Done!
