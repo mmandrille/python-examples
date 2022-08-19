@@ -24,15 +24,15 @@ class RecursiveClimber():
             self.ways+=1 # Basicaly we will generate a recursion for every possible way
 
 def countWays(height):
-    steps = [0] * (height + 1) # We generate one position for every lvl of the stair
-    steps[0] = 0 # at no height no steps
+    steps = [0 for x in range(height + 1)] # We generate one position for every lvl of the stair
     steps[1] = 1 # only one step height, only one step
-    steps[2] = 2 # only two options at max 2 steps (1-1 and 2)
- 
-    for i in range(3, height+1): # We will calculate all the heights
+    steps[2] = 2 # only two options at max 2 steps (1+1 & 2)
+    
+    # We will calculate all the heights till top
+    for i in range(3, height+1): # We begin from not calculated ones
         steps[i] = steps[i-2] + steps[i-1] # every lvl possibilities its the sum of previous two
- 
-    print(f"countSteps: There are {steps[height]} possibilities with {height} max_steps")
+
+    print(f"countWays: There are {steps[height]} possibilities with {height} max_steps")
     return steps[height]
 
 # Run:
