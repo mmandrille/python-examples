@@ -1,0 +1,28 @@
+version: '3.7'
+
+# Internal Connections between services
+networks:
+  cache_network:
+    name: cache_network
+    driver: bridge
+    ipam:
+      config:
+       - subnet: 10.0.5.0/24
+
+# Service definitions
+services:
+  redis:
+    image: redis:6.2-alpine
+    container_name: redis
+    command: redis-server --save 20 1 --loglevel warning #--requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    restart: on-failure
+    volumes:
+      - cache:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - cache_network
+
+volumes:
+  cache:
+    driver: local
