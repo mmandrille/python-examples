@@ -1,6 +1,6 @@
-# Kafka Queue with Kafka
+# REDIS Cache
 
-For this Example we will generate 12 docker services from image: Memcached and run a python script to test it
+For this Example we will generate a docker services from image: redis and run a python script to test it
 
 To try this you will need docker and docker-composer installed:
 ```
