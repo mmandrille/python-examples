@@ -1,0 +1,38 @@
+version: '3.7'
+x-services-vars: &services-vars
+  KAFKA_URL: ftp_server:9092
+  KAFKA_TOPIC: testing
+  KAFKA_PARTITIONS: 8 # This should be the same as consumer.MAX_TASKS
+
+x-locale-vars: &locale-vars
+  TZ: US/Central
+  LANG: en_US.UTF-8
+  LANGUAGE: en_US
+
+# Internal Connections between services
+networks:
+  ftp_network:
+    name: ftp_network
+    driver: bridge
+    ipam:
+      config:
+       - subnet: 10.0.5.0/24
+
+services:
+  ftpd-server:
+    image: stilliard/pure-ftpd
+    container_name: pure-ftpd
+    networks:
+      - ftp_network
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - "/data:/home/username/"
+      - "/passwd:/etc/pure-ftpd/passwd"
+    environment:
+      PUBLICHOST: "localhost"
+      FTP_USER_NAME: username
+      FTP_USER_PASS: mypass
+      FTP_USER_HOME: /home/username
+    restart: always

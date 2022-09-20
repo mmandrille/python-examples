@@ -1,3 +1,4 @@
 *.pyc 
 venv
 *.log*
+fttp/ftp/pass/pureftpd.passwd
