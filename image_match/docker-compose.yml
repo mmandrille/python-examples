@@ -12,7 +12,7 @@ networks:
 # Services
 services:  
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
+    image: elasticsearch:6.4.2
     volumes:
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     environment:
@@ -24,7 +24,7 @@ services:
 
   imatch:
     image: dsys/match:latest
-    command: ["/wait-for-it.sh", "-t", "60", "elasticsearch:9200", "--", "gunicorn", "-b", "0.0.0.0:8888", "-w", "4", "server:app"]
+    command: ["/wait-for-it.sh", "-t", "60", "elasticsearch:9200", "--", "gunicorn", "-b", "0.0.0.0:8888", "-w", "1", "server:app"]
     ports:
       - 8888:8888
     networks:
