@@ -7,6 +7,7 @@ from datetime import datetime
 # Enviroment Variables
 IMATCH_URL = 'http://localhost:8888'
 MIN_THREASHOLD = 85
+IMAGE_COUNT = 5
 
 
 # code
@@ -61,11 +62,11 @@ class ImageMatcher():
 
 # Code
 if __name__ == "__main__":
-    url = 'https://picsum.photos/200/300'
-    dinamic_url = 'https://source.unsplash.com/user/c_v_r/480x240'
-    # First Time
-    im = ImageMatcher(url)
-    print(f"First Test: {im.response}")
-    # Second Time
-    im = ImageMatcher(url)
-    print(f"Second Test: {im.response}")
+    dinamic_url = 'https://picsum.photos/200/300'  # This image change
+    # We load x images:
+    for x in range(IMAGE_COUNT):
+        im = ImageMatcher(dinamic_url)
+        print(f"Image n{x} Loaded: {im.response}")
+
+    # check Library:
+    assert 5 == requests.get(f'{IMATCH_URL}/count').json()['result'][0]
