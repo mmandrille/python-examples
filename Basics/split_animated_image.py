@@ -15,14 +15,16 @@ def get_images_from_url(url):
 
         return images
 
-    except Exception:
+    except AttributeError:
         return [imageObject, ]
 
 
+# Animated
 images = get_images_from_url('https://storage.googleapis.com/infoxel-tagx-thumbs/Portales/Ads/ad_2022-10-18T14%3A00%3A30_300_600.png')
 for image in images:
     image.show()
 
+# Not animated
 images = get_images_from_url('http://c.files.bbci.co.uk/48DD/production/_107435681_perro1.jpg')
 for image in images:
     image.show()
