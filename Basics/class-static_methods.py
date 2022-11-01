@@ -24,7 +24,9 @@ if __name__ == "__main__":
         print(f'Got grades: {class_grades_valid.grades}')
 
         # Should fail with invalid grades
-        class_grades_invalid = ClassGrades.from_csv('92, -15, 99, 101, 77, 65, 100')
+        class_grades_invalid = ClassGrades.from_csv(
+            '92, -15, 99, 101, 77, 65, 100'
+        )
         print(class_grades_invalid.grades)
 
     except Exception:
