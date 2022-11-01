@@ -15,7 +15,7 @@ class myThread (threading.Thread):
 
     def run(self):
         print(f"Starting  {self.name}")
-        process_data(self.name, self.q)   
+        process_data(self.name, self.q)
         print(f"Exiting {self.name}")
 
 
