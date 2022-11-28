@@ -8,7 +8,6 @@ CheatSheet:
     ^ asserts position at start of the string
 
     \d matches a digit (equivalent to [0-9])
-    \d matches a digit (equivalent to [0-9])
 
     (?P<foo>...) Name capture group foo for ... definition
 
