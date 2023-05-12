@@ -1,0 +1,15 @@
+tqdm
+psutil
+opencv-python
+pandas
+pyyaml
+matplotlib
+seaborn
+
+# ML Modules
+torch
+torchvision
+torchaudio
+
+# QoL items
+ipython
