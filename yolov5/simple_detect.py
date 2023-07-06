@@ -15,8 +15,10 @@ model.classes = [0]  # (optional list) filter by class, i.e. = [0, 15, 16]
 model.max_det = 1000  # maximum number of detections per image
 model.amp = False  # Automatic Mixed Precision (AMP) inference
 
+
 # Image
 im = 'https://ultralytics.com/images/zidane.jpg'
+
 
 # Inference
 results = model(im)
